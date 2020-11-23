@@ -3,19 +3,17 @@
 return [
     'download_report' => [
         'unique_fields' => ['date'],  // các trường riêng biệt của 1 bản ghi
-        'api' => '/api/v1/report/date/download?range=m', // api endpoint
-        'attribute_mapping' => [ // xác định kiểu dữ liệu của mỗi trường
+        'api' => '/api/v1/report/date/download?range=d', // api endpoint
+        'attribute_mapping' => [ // xác định các trường và kiểu dữ liệu của mỗi trường
             'date' => 'date',
             'count' => 'unsignedInteger'
         ],
-        'fields' => ['date', 'count'], // các trường sẽ xuất hiện trong database,
-        // nếu đã khai báo ở trong config attribute_mapping phía trên thì không cần khai báo lại
-        'custom_data_fields' => 'items' // trường dữ liệu chứa danh sách các bản ghi từ API, mặc định là `items`
+        'data_field' => 'items' // trường dữ liệu chứa danh sách các bản ghi từ API, mặc định là `items`
     ],
     
     'upload_report' => [
         'unique_fields' => ['uploaded_at'],
-        'api' => '/api/v1/upload_report?range=m',
+        'api' => '/api/v1/upload_report?range=d',
         'attribute_mapping' => [
             "uploaded_at" => "date",
             "user_uploaded_count_sum" => "unsignedInteger",
@@ -25,7 +23,6 @@ return [
             "user_approved_count_sum" => "unsignedInteger",
             "bot_approved_count_sum" => "unsignedInteger",
         ],
-        'fields' => [],
     ],
     
     'robot_counter_report' => [
@@ -39,7 +36,6 @@ return [
             "average_execution_time" => "unsignedInteger",
             "visited_times" => "unsignedInteger",
         ],
-        'fields' => [],
     ],
     
     'seo_keyword' => [
@@ -50,7 +46,6 @@ return [
             "public_count" => "unsignedInteger",
             "total" => "unsignedInteger",
         ],
-        'fields' => [],
     ],
     
     'social_report' => [
@@ -68,8 +63,7 @@ return [
             "linkedin" => "unsignedInteger",
             "tumblr" => "unsignedInteger",
         ],
-        'fields' => [],
-        'custom_data_fields' => 'data'
+        'data_field' => 'data'
     
     ]
 ];

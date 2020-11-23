@@ -23,7 +23,7 @@ class GetData extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Get data from api and save to database';
     
     /**
      * Create a new command instance.
@@ -45,16 +45,20 @@ class GetData extends Command
         $client = new \GuzzleHttp\Client();
         $domains = ['https://id.123dok.com', 'https://1library.net', 'https://1library.co'];
         foreach ($domains as $domain) {
+            $this->info('Processing domain ' . $domain);
             foreach (config('report') as $table_name => $report) {
+                $this->info('Getting data for ' . $table_name);
                 try {
                     $response = $client->get($domain . $report['api']);
                 } catch (\Exception $exception){
                     $this->error($exception->getMessage());
+                    continue;
                 }
                 $response_data = json_decode($response->getBody()->getContents(), true);
-                $data_field = isset($report['custom_data_fields']) ? $report['custom_data_fields'] : 'items';
+                $data_field = isset($report['data_field']) ? $report['data_field'] : 'items';
                 if (!Schema::hasTable($table_name) && isset($response_data[$data_field][0])) {
-                    $field_list = array_merge($report['fields'], array_keys($report['attribute_mapping']));
+                    $this->info('Creating table ' . $table_name);
+                    $field_list =  array_keys($report['attribute_mapping']);
                     $field_list[] = 'domain';
                     $field_list[] = 'addition';
                     $this->createSchema($field_list, $table_name, $report['attribute_mapping']);
@@ -71,7 +75,7 @@ class GetData extends Command
                         if ($field == 'id') {
                             continue;
                         }
-                        if (in_array($field, array_merge($report['fields'], array_keys($report['attribute_mapping'])))) {
+                        if (in_array($field, array_keys($report['attribute_mapping']))) {
                             $values[$field] = $datum;
                         } else {
                             $addition_value[$field] = $datum;
@@ -115,6 +119,9 @@ class GetData extends Command
             foreach ($fields as $field) {
                 if ($field == 'id')
                     continue;
+                if(!in_array($field, array_keys($this->getAttributeMapping($attributes)))){
+                    dd('Please specify type for attribute: ' . $field);
+                }
                 switch ($this->getAttributeMapping($attributes)[$field]) {
                     case 'date':
                         $table->date($field)->index();
